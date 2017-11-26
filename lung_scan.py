@@ -100,3 +100,13 @@ class ProcessedScan(object):
         self.mask = ans['mask']
         self.std_image = ans['std_image']
         self.nodules = ans['nodules']
+
+    def tighten(self):
+        slices = util.find_bbox(self.mask, [1,1,1], 0)
+        offset_z, offset_y, offset_x = [s.start for s in slices]
+        std_image = self.std_image[slices]
+        nodules = np.asarray([
+            [x - offset_x, y - offset_y, z - offset_z, d]
+            for x, y, z, d in self.nodules
+        ], dtype=np.float)
+        return std_image, nodules
